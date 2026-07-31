@@ -1,0 +1,541 @@
+
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Conversor e Login</title>
+  <link rel="stylesheet" href="style.css">
+</head>
+<body>
+  <div class="app-grid">
+    <section class="card login-card" aria-label="Painel de acesso">
+      <div class="login-card__plate">
+        <div class="lock-icon">
+          <svg viewBox="0 0 24 24" fill="anone" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+            <rect x="4" y="11" width="16" height="9" rx="2"></rect>
+            <path d="M8 11V7a4 4 0 0 1 8 0v4"></path>
+          </svg>
+        </div>
+        <h1>Painel de Acesso</h1>
+        <span class="sub">área restrita</span>
+      </div>
+
+      <form id="loginForm" class="login-card__form">
+        <div class="login-card__field">
+          <label for="username">Usuário</label>
+          <input type="text" id="username" autocomplete="username" placeholder="Digite o usuário">
+        </div>
+
+        <div class="login-card__field">
+          <label for="password">Senha</label>
+          <input type="password" id="password" autocomplete="current-password" placeholder="Digite a senha">
+        </div>
+
+        <button type="submit" class="login-card__submit">Entrar</button>
+        <button type="button" class="login-card__link" id="forgotPasswordBtn">Esqueceu minha senha?</button>
+        <div class="login-card__msg" id="msg"></div>
+      </form>
+
+      <form id="resetForm" class="login-card__form login-card__form--secondary hidden">
+        <div class="login-card__field">
+          <label for="newUsername">Novo usuário</label>
+          <input type="text" id="newUsername" placeholder="Digite um novo usuário">
+        </div>
+
+        <div class="login-card__field">
+          <label for="newPassword">Nova senha</label>
+          <input type="password" id="newPassword" placeholder="Digite uma nova senha">
+        </div>
+
+        <button type="submit" class="login-card__submit">Salvar e entrar</button>
+        <button type="button" class="login-card__link" id="backToLoginBtn">Voltar ao login</button>
+        <div class="login-card__msg" id="resetMsg"></div>
+      </form>
+
+      <div class="login-card__welcome" id="welcome">
+        <div class="login-card__badge">
+          <svg viewBox="0 0 24 24" fill="none" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+            <polyline points="20 6 9 17 4 12"></polyline>
+          </svg>
+        </div>
+        <h2>Acesso liberado</h2>
+        <p>Bem-vindo, administrador.</p>
+        <button class="logout-btn" id="logoutBtn">Sair</button>
+      </div>
+
+      <footer class="login-card__footer">autenticação local · sem conexão necessária</footer>
+    </section>
+    <section class="card converter-card hidden" aria-label="Conversor de unidades">
+      <div class="converter-card__plate">
+        <button class="converter-card__back" id="backToLoginBtnFromApp" aria-label="Voltar para o login" type="button">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+            <path d="M15 18l-6-6 6-6"></path>
+          </svg>
+        </button>
+        <h1>Conversor de Unidades</h1>
+        <span class="serial" id="serial">CAT. COMPRIMENTO</span>
+      </div>
+
+      <div class="converter-card__dial" id="dial"></div>
+
+      <div class="converter-card__body">
+        <div class="converter-card__row">
+          <div class="converter-card__field">
+            <label for="fromValue">De</label>
+            <input type="number" id="fromValue" value="1" step="any">
+            <select id="fromUnit"></select>
+          </div>
+
+          <button class="converter-card__swap" id="swapBtn" title="Inverter" aria-label="Inverter unidades">⇄</button>
+
+          <div class="converter-card__field">
+            <label for="toUnit">Para</label>
+            <input type="text" id="toValueDisplay" readonly value="">
+            <select id="toUnit"></select>
+          </div>
+        </div>
+
+        <div class="converter-card__result">
+          <span class="value" id="resultValue">—</span>
+          <span class="unit" id="resultUnit"></span>
+        </div>
+
+        <div class="converter-card__scale-wrap">
+          <div class="converter-card__scale-label">
+            <span id="scaleFromLabel">origem</span>
+            <span id="scaleToLabel">destino</span>
+          </div>
+          <svg class="scale" id="scaleSvg" viewBox="0 0 700 54" preserveAspectRatio="none"></svg>
+        </div>
+      </div>
+
+      <footer class="converter-card__footer"></footer>
+    </section>
+
+    <section class="card dashboard-card hidden" aria-label="Dashboard">
+      <div class="dashboard-card__header">
+        <div>
+          <h1>Dashboard</h1>
+          <p>Visão geral do seu conversor</p>
+        </div>
+        <button class="dashboard-card__action" id="openConverterBtn" type="button">Ir ao conversor</button>
+      </div>
+
+      <div class="dashboard-card__grid">
+        <article class="dashboard-card__item">
+          <h2>Usuário atual</h2>
+          <strong id="dashboardUser">—</strong>
+        </article>
+        <article class="dashboard-card__item">
+          <h2>Categoria ativa</h2>
+          <strong id="dashboardCategory">Comprimento</strong>
+        </article>
+        <article class="dashboard-card__item">
+          <h2>Última conversão</h2>
+          <strong id="dashboardConversion">—</strong>
+        </article>
+      </div>
+
+      <div class="dashboard-card__chart">
+        <p class="dashboard-card__chart-title">Conversões por categoria</p>
+        <div class="dashboard-card__bar-chart" role="img" aria-label="Gráfico de barras das conversões por categoria">
+          <div class="dashboard-card__bar">
+            <span class="bar-label">Comprimento</span>
+            <div class="bar-track">
+              <div class="bar-fill" id="barComprimento"></div>
+            </div>
+            <span class="bar-value" id="barValueComprimento">0</span>
+          </div>
+          <div class="dashboard-card__bar">
+            <span class="bar-label">Peso</span>
+            <div class="bar-track">
+              <div class="bar-fill" id="barPeso"></div>
+            </div>
+            <span class="bar-value" id="barValuePeso">0</span>
+          </div>
+        </div>
+      </div>
+    </section>
+  </div>
+
+  <script>
+    const categories = {
+      comprimento: {
+        base: 'm',
+        units: {
+          mm: 0.001, cm: 0.01, m: 1, km: 1000,
+          pol: 0.0254, pe: 0.3048, jarda: 0.9144, milha: 1609.344
+        },
+        labels: { mm: 'Milímetro', cm: 'Centímetro', m: 'Metro', km: 'Quilômetro', pol: 'Polegada', pe: 'Pé', jarda: 'Jarda', milha: 'Milha' }
+      },
+      peso: {
+        base: 'kg',
+        units: {
+          mg: 0.000001, g: 0.001, kg: 1, ton: 1000,
+          onca: 0.0283495, lb: 0.453592
+        },
+        labels: { mg: 'Miligrama', g: 'Grama', kg: 'Quilograma', ton: 'Tonelada', onca: 'Onça', lb: 'Libra' }
+      },
+      temperatura: {
+        special: true,
+        units: { c: 1, f: 1, k: 1 },
+        labels: { c: 'Celsius', f: 'Fahrenheit', k: 'Kelvin' }
+      },
+      volume: {
+        base: 'l',
+        units: {
+          ml: 0.001, l: 1, m3: 1000,
+          galao: 3.78541, xicara: 0.236588, colherSopa: 0.0147868, colherCha: 0.00492892
+        },
+        labels: { ml: 'Mililitro', l: 'Litro', m3: 'Metro cúbico', galao: 'Galão (EUA)', xicara: 'Xícara', colherSopa: 'Colher de sopa', colherCha: 'Colher de chá' }
+      },
+      area: {
+        base: 'm2',
+        units: {
+          cm2: 0.0001, m2: 1, km2: 1000000,
+          hectare: 10000, alqueire: 24200, pe2: 0.092903
+        },
+        labels: { cm2: 'Centímetro²', m2: 'Metro²', km2: 'Quilômetro²', hectare: 'Hectare', alqueire: 'Alqueire (paulista)', pe2: 'Pé²' }
+      },
+      velocidade: {
+        base: 'ms',
+        units: {
+          ms: 1, kmh: 0.277778, mph: 0.44704, no: 0.514444
+        },
+        labels: { ms: 'Metro/segundo', kmh: 'Km/h', mph: 'Milha/h', no: 'Nó' }
+      },
+      dados: {
+        base: 'byte',
+        units: {
+          bit: 0.125, byte: 1, kb: 1024, mb: 1048576, gb: 1073741824, tb: 1099511627776
+        },
+        labels: { bit: 'Bit', byte: 'Byte', kb: 'Kilobyte', mb: 'Megabyte', gb: 'Gigabyte', tb: 'Terabyte' }
+      }
+    };
+
+    let currentCategory = 'comprimento';
+
+    const dial = document.getElementById('dial');
+    const serial = document.getElementById('serial');
+    const fromUnitSel = document.getElementById('fromUnit');
+    const toUnitSel = document.getElementById('toUnit');
+    const fromValueInput = document.getElementById('fromValue');
+    const toValueDisplay = document.getElementById('toValueDisplay');
+    const resultValue = document.getElementById('resultValue');
+    const resultUnit = document.getElementById('resultUnit');
+    const swapBtn = document.getElementById('swapBtn');
+    const scaleSvg = document.getElementById('scaleSvg');
+    const scaleFromLabel = document.getElementById('scaleFromLabel');
+    const scaleToLabel = document.getElementById('scaleToLabel');
+
+    function buildDial() {
+      dial.innerHTML = '';
+      Object.keys(categories).forEach(cat => {
+        const btn = document.createElement('button');
+        btn.textContent = cat;
+        btn.dataset.cat = cat;
+        if (cat === currentCategory) btn.classList.add('active');
+        btn.addEventListener('click', () => {
+          currentCategory = cat;
+          buildDial();
+          buildUnitSelects();
+          convert();
+        });
+        dial.appendChild(btn);
+      });
+    }
+
+    function buildUnitSelects() {
+      const cat = categories[currentCategory];
+      const keys = Object.keys(cat.units);
+      fromUnitSel.innerHTML = keys.map(k => `<option value="${k}">${cat.labels[k]}</option>`).join('');
+      toUnitSel.innerHTML = keys.map(k => `<option value="${k}">${cat.labels[k]}</option>`).join('');
+      fromUnitSel.value = keys[0];
+      toUnitSel.value = keys[1] || keys[0];
+      serial.textContent = 'CAT. ' + currentCategory.toUpperCase();
+    }
+
+    function convertTemp(value, from, to) {
+      let celsius;
+      if (from === 'c') celsius = value;
+      else if (from === 'f') celsius = (value - 32) * 5 / 9;
+      else if (from === 'k') celsius = value - 273.15;
+
+      if (to === 'c') return celsius;
+      if (to === 'f') return celsius * 9 / 5 + 32;
+      if (to === 'k') return celsius + 273.15;
+    }
+
+    function formatNumber(n) {
+      if (!isFinite(n)) return '—';
+      if (Math.abs(n) >= 1e9 || (Math.abs(n) < 1e-6 && n !== 0)) {
+        return n.toExponential(4);
+      }
+      return parseFloat(n.toFixed(6)).toString();
+    }
+
+    function convert() {
+      const cat = categories[currentCategory];
+      const val = parseFloat(fromValueInput.value);
+      const fromU = fromUnitSel.value;
+      const toU = toUnitSel.value;
+
+      if (isNaN(val)) {
+        resultValue.textContent = '—';
+        toValueDisplay.value = '';
+        drawScale(0, 0, fromU, toU);
+        return;
+      }
+
+      let result;
+      if (cat.special) {
+        result = convertTemp(val, fromU, toU);
+      } else {
+        const baseVal = val * cat.units[fromU];
+        result = baseVal / cat.units[toU];
+      }
+
+      const formatted = formatNumber(result);
+      resultValue.textContent = formatted;
+      resultUnit.textContent = cat.labels[toU];
+      toValueDisplay.value = formatted;
+
+      scaleFromLabel.textContent = `${formatNumber(val)} ${cat.labels[fromU]}`;
+      scaleToLabel.textContent = `${formatted} ${cat.labels[toU]}`;
+
+      drawScale(val, result, fromU, toU);
+    }
+
+    function drawScale(fromVal, toVal) {
+      const w = 700;
+      let svg = '';
+      const baselineY = 30;
+
+      svg += `<line class="baseline" x1="0" y1="${baselineY}" x2="${w}" y2="${baselineY}"></line>`;
+
+      const tickCount = 40;
+      for (let i = 0; i <= tickCount; i++) {
+        const x = (i / tickCount) * w;
+        const isMajor = i % 5 === 0;
+        const tickH = isMajor ? 12 : 6;
+        svg += `<line class="tick${isMajor ? ' major' : ''}" x1="${x}" y1="${baselineY}" x2="${x}" y2="${baselineY - tickH}"></line>`;
+      }
+
+      const maxAbs = Math.max(Math.abs(fromVal), Math.abs(toVal), 1e-9);
+      const fromRatio = maxAbs === 0 ? 0.5 : (Math.abs(fromVal) / maxAbs) * 0.4 + 0.05;
+      const toRatio = maxAbs === 0 ? 0.5 : (Math.abs(toVal) / maxAbs) * 0.4 + 0.55;
+
+      const fromX = fromRatio * w;
+      const toX = toRatio * w;
+
+      svg += `<line class="marker-line" x1="${fromX}" y1="${baselineY}" x2="${fromX}" y2="${baselineY + 16}"></line>`;
+      svg += `<circle class="marker" cx="${fromX}" cy="${baselineY + 16}" r="4"></circle>`;
+
+      svg += `<line class="marker-line" x1="${toX}" y1="${baselineY}" x2="${toX}" y2="${baselineY + 16}" style="stroke:var(--teal)"></line>`;
+      svg += `<circle class="marker" cx="${toX}" cy="${baselineY + 16}" r="4" style="fill:var(--teal)"></circle>`;
+
+      scaleSvg.innerHTML = svg;
+    }
+
+    function swap() {
+      const f = fromUnitSel.value;
+      const t = toUnitSel.value;
+      fromUnitSel.value = t;
+      toUnitSel.value = f;
+      fromValueInput.value = toValueDisplay.value || fromValueInput.value;
+      convert();
+    }
+
+    fromValueInput.addEventListener('input', convert);
+    fromUnitSel.addEventListener('change', convert);
+    toUnitSel.addEventListener('change', convert);
+    swapBtn.addEventListener('click', swap);
+
+    buildDial();
+    buildUnitSelects();
+    convert();
+
+    const STORAGE_KEY = 'converter-auth';
+    const DEFAULT_CREDENTIALS = { user: 'adm', pass: '0105' };
+
+    function loadCredentials() {
+      const saved = localStorage.getItem(STORAGE_KEY);
+      if (!saved) {
+        localStorage.setItem(STORAGE_KEY, JSON.stringify(DEFAULT_CREDENTIALS));
+        return { ...DEFAULT_CREDENTIALS };
+      }
+      try {
+        return JSON.parse(saved);
+      } catch {
+        localStorage.setItem(STORAGE_KEY, JSON.stringify(DEFAULT_CREDENTIALS));
+        return { ...DEFAULT_CREDENTIALS };
+      }
+    }
+
+    function saveCredentials(data) {
+      localStorage.setItem(STORAGE_KEY, JSON.stringify(data));
+    }
+
+    let credentials = loadCredentials();
+
+    const form = document.getElementById('loginForm');
+    const resetForm = document.getElementById('resetForm');
+    const usernameInput = document.getElementById('username');
+    const passwordInput = document.getElementById('password');
+    const newUsernameInput = document.getElementById('newUsername');
+    const newPasswordInput = document.getElementById('newPassword');
+    const msg = document.getElementById('msg');
+    const resetMsg = document.getElementById('resetMsg');
+    const welcome = document.getElementById('welcome');
+    const logoutBtn = document.getElementById('logoutBtn');
+    const forgotPasswordBtn = document.getElementById('forgotPasswordBtn');
+    const backToLoginBtn = document.getElementById('backToLoginBtn');
+    const backToLoginBtnFromApp = document.getElementById('backToLoginBtnFromApp');
+    const dashboardCard = document.querySelector('.dashboard-card');
+    const converterCard = document.querySelector('.converter-card');
+    const dashboardUser = document.getElementById('dashboardUser');
+    const dashboardCategory = document.getElementById('dashboardCategory');
+    const dashboardConversion = document.getElementById('dashboardConversion');
+    const barComprimento = document.getElementById('barComprimento');
+    const barPeso = document.getElementById('barPeso');
+    const barValueComprimento = document.getElementById('barValueComprimento');
+    const barValuePeso = document.getElementById('barValuePeso');
+    const openConverterBtn = document.getElementById('openConverterBtn');
+
+    function showLoginView() {
+      form.classList.remove('hidden');
+      resetForm.classList.add('hidden');
+      welcome.classList.remove('active');
+      dashboardCard.classList.add('hidden');
+      converterCard.classList.add('hidden');
+      msg.className = 'login-card__msg';
+      msg.textContent = '';
+      resetMsg.className = 'login-card__msg';
+      resetMsg.textContent = '';
+    }
+
+    function showResetView() {
+      form.classList.add('hidden');
+      resetForm.classList.remove('hidden');
+      welcome.classList.remove('active');
+      dashboardCard.classList.add('hidden');
+      converterCard.classList.add('hidden');
+      usernameInput.classList.remove('error');
+      passwordInput.classList.remove('error');
+      newUsernameInput.classList.remove('error');
+      newPasswordInput.classList.remove('error');
+      msg.className = 'login-card__msg';
+      msg.textContent = '';
+      resetMsg.className = 'login-card__msg';
+      resetMsg.textContent = '';
+    }
+
+    const categoryTotals = { comprimento: 8, peso: 5 };
+
+    function updateDashboard() {
+      dashboardUser.textContent = credentials.user;
+      dashboardCategory.textContent = currentCategory.charAt(0).toUpperCase() + currentCategory.slice(1);
+      dashboardConversion.textContent = `${fromValueInput.value} ${fromUnitSel.value} → ${toValueDisplay.value} ${toUnitSel.value}`;
+
+      const comprimentoValue = categoryTotals.comprimento;
+      const pesoValue = categoryTotals.peso;
+      const maxValue = Math.max(comprimentoValue, pesoValue, 1);
+
+      barComprimento.style.width = `${(comprimentoValue / maxValue) * 100}%`;
+      barPeso.style.width = `${(pesoValue / maxValue) * 100}%`;
+      barValueComprimento.textContent = comprimentoValue;
+      barValuePeso.textContent = pesoValue;
+    }
+
+    function showAuthenticatedView() {
+      form.classList.add('hidden');
+      resetForm.classList.add('hidden');
+      welcome.classList.remove('active');
+      dashboardCard.classList.remove('hidden');
+      converterCard.classList.remove('hidden');
+      updateDashboard();
+    }
+
+    function showDashboard() {
+      showAuthenticatedView();
+    }
+
+    function showConverter() {
+      showAuthenticatedView();
+      converterCard.scrollIntoView({ behavior: 'smooth', block: 'start' });
+    }
+
+    function enterApp() {
+      document.body.classList.add('is-authenticated');
+      showAuthenticatedView();
+    }
+
+    function leaveApp() {
+      document.body.classList.remove('is-authenticated');
+      showLoginView();
+      usernameInput.value = '';
+      passwordInput.value = '';
+      newUsernameInput.value = '';
+      newPasswordInput.value = '';
+      usernameInput.classList.remove('error');
+      passwordInput.classList.remove('error');
+      newUsernameInput.classList.remove('error');
+      newPasswordInput.classList.remove('error');
+    }
+
+    openConverterBtn.addEventListener('click', showConverter);
+
+    form.addEventListener('submit', (e) => {
+      e.preventDefault();
+
+      const user = usernameInput.value.trim();
+      const pass = passwordInput.value;
+
+      usernameInput.classList.remove('error');
+      passwordInput.classList.remove('error');
+
+      if (user === credentials.user && pass === credentials.pass) {
+        enterApp();
+      } else {
+        usernameInput.classList.add('error');
+        passwordInput.classList.add('error');
+        msg.className = 'login-card__msg error';
+        msg.textContent = 'Usuário ou senha incorretos.';
+      }
+    });
+
+    resetForm.addEventListener('submit', (e) => {
+      e.preventDefault();
+
+      const newUser = newUsernameInput.value.trim();
+      const newPass = newPasswordInput.value;
+
+      newUsernameInput.classList.remove('error');
+      newPasswordInput.classList.remove('error');
+
+      if (!newUser || !newPass) {
+        newUsernameInput.classList.add('error');
+        newPasswordInput.classList.add('error');
+        resetMsg.className = 'login-card__msg error';
+        resetMsg.textContent = 'Preencha usuário e senha.';
+        return;
+      }
+
+      credentials = { user: newUser, pass: newPass };
+      saveCredentials(credentials);
+      enterApp();
+    });
+
+    forgotPasswordBtn.addEventListener('click', showResetView);
+    backToLoginBtn.addEventListener('click', showLoginView);
+    backToLoginBtnFromApp.addEventListener('click', () => {
+      leaveApp();
+    });
+
+    logoutBtn.addEventListener('click', () => {
+      leaveApp();
+    });
+  </script>
+</body>
+</html>
